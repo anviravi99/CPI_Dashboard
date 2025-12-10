@@ -101,10 +101,10 @@ export default function App() {
         </div>
       </header>
 
-      {/* Main Content Grid - Max Width added to restore correct proportions */}
-      <main className="flex-1 p-6 min-h-0 grid grid-cols-12 grid-rows-[auto_1fr] gap-6 max-w-[1600px] w-full mx-auto">
+      {/* Main Content Grid - constrained max-width to restore preferred aesthetic */}
+      <main className="flex-1 p-6 min-h-0 grid grid-cols-12 grid-rows-[auto_1fr] gap-6 max-w-[1350px] w-full mx-auto">
          
-         {/* KPI Row (Top) - Increased height to 32 (128px) for better aspect ratio */}
+         {/* KPI Row (Top) */}
          <div className="col-span-12 grid grid-cols-4 gap-6 h-32 flex-none">
               <Card 
                 title="Average CPI" 
@@ -133,7 +133,7 @@ export default function App() {
               />
          </div>
 
-         {/* Charts Area (Bottom) - Fills remaining space */}
+         {/* Charts Area (Bottom) */}
          <div className="col-span-12 grid grid-cols-12 gap-6 min-h-0">
             
             {/* Left: Trend Chart (Larger) */}

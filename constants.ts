@@ -9,18 +9,15 @@ const generateData = () => {
 
   let csv = `Sector,Year,Month,MonthNum,Date,Cereals and products,Meat and fish,Egg,Milk and products,Oils and fats,Fruits,Vegetables,Pulses and products,Sugar and Confectionery,Spices,Non-alcoholic beverages,"Prepared meals, snacks, sweets etc.",Food and beverages,"Pan, tobacco and intoxicants",Clothing,Footwear,Clothing and footwear,Housing,Fuel and light,Household goods and services,Health,Transport and communication,Recreation and amusement,Education,Personal care and effects,Miscellaneous,General index`;
 
-  // Base values (approximate 2013 start)
-  let baseCPI = 105.0;
-  
-  // Commodity baselines
-  let commodities: Record<string, number> = {
+  // Base configuration for commodities
+  const baseCommodities = {
     "Cereals and products": 107,
     "Meat and fish": 106,
     "Egg": 108,
     "Milk and products": 105,
     "Oils and fats": 106,
     "Fruits": 104,
-    "Vegetables": 102, // Volatile
+    "Vegetables": 102,
     "Pulses and products": 106,
     "Sugar and Confectionery": 106,
     "Spices": 103,
@@ -31,7 +28,7 @@ const generateData = () => {
     "Clothing": 106,
     "Footwear": 105,
     "Clothing and footwear": 106,
-    "Housing": 100, // Urban only usually, but we simulate
+    "Housing": 100,
     "Fuel and light": 105,
     "Household goods and services": 104,
     "Health": 103,
@@ -42,66 +39,83 @@ const generateData = () => {
     "Miscellaneous": 105
   };
 
+  // Initialize independent state for each sector to ensure they drift differently
+  // Deep copy for independent tracking
+  const sectorState: Record<string, Record<string, number>> = {
+    'Rural': JSON.parse(JSON.stringify(baseCommodities)),
+    'Urban': JSON.parse(JSON.stringify(baseCommodities)),
+    'Rural+Urban': JSON.parse(JSON.stringify(baseCommodities))
+  };
+
+  // Apply initial differentiation so the charts look different immediately
+  // Rural: Lower Housing (often 0 in real CPI but we keep low for viz), Cheaper services, Higher Food weight (simulated by volatility)
+  for (const key in sectorState['Rural']) {
+    if(key === 'Housing') sectorState['Rural'][key] = 40; // Rural housing starts much lower
+    if(key === 'Clothing') sectorState['Rural'][key] *= 0.95;
+    if(key === 'Miscellaneous') sectorState['Rural'][key] *= 0.92;
+  }
+
+  // Urban: Higher Housing, Higher Services
+  for (const key in sectorState['Urban']) {
+    if(key === 'Housing') sectorState['Urban'][key] = 110;
+    if(key === 'Transport and communication') sectorState['Urban'][key] *= 1.05;
+  }
+
   years.forEach(year => {
     months.forEach((month, monthIndex) => {
       const monthNum = monthIndex + 1;
-      // Pad date for consistency 01-01-2013
       const dateStr = `01-${monthNum.toString().padStart(2, '0')}-${year}`;
 
       sectors.forEach(sector => {
-        // Add some random variation and steady inflation trend per month
-        // Inflation trend ~0.4% per month on average
+        const currentCommods = sectorState[sector];
         
-        // Random fluctuation factors
-        const volatility = Math.random() * 2 - 0.8; // -0.8 to 1.2
-        const trend = 0.35; // Base monthly inflation
-        
-        // Update Commodities
-        const rowData: string[] = [];
-        
-        // Push standard columns
-        rowData.push(sector);
-        rowData.push(year.toString());
-        rowData.push(month);
-        rowData.push(monthNum.toString());
-        rowData.push(dateStr);
+        // General inflation trend (randomized slightly per sector/month)
+        const trend = 0.35 + (Math.random() * 0.1); 
+        const volatility = Math.random() * 2 - 1;
 
-        // Generate Commodity Values
+        const rowData: string[] = [];
+        rowData.push(sector, year.toString(), month, monthNum.toString(), dateStr);
+
         let weightedSum = 0;
         let count = 0;
 
-        for (const key in commodities) {
-          // Vegetables are more volatile
-          let specificVolatility = volatility;
-          if (key === 'Vegetables' || key === 'Fruits') specificVolatility *= 3;
-          
-          // Apply change
-          let change = trend + specificVolatility;
-          
-          // Urban housing is higher, Rural doesn't exist often in raw data but we fill for chart safety
-          if (key === 'Housing' && sector === 'Rural') {
-             // Keep distinct
-             commodities[key] += change * 0.8;
-          } else {
-             commodities[key] += change;
-          }
+        for (const key in currentCommods) {
+           let change = trend;
+           
+           // Sector specific modifier to ensure divergence over time
+           if (sector === 'Rural') {
+             if (['Vegetables', 'Fruits', 'Cereals and products'].includes(key)) {
+                change += 0.15; // Food inflation often higher/more volatile in rural
+             }
+             if (key === 'Housing') change = 0.1; // Very slow growth for rural housing
+           } 
+           else if (sector === 'Urban') {
+             if (key === 'Housing') change += 0.2; // Urban housing grows faster
+             if (key === 'Education' || key === 'Health') change += 0.1; // Services grow faster in Urban
+           }
 
-          // Add slight noise per sector
-          let sectorNoise = sector === 'Urban' ? 0.2 : -0.1;
-          let finalVal = (commodities[key] + sectorNoise).toFixed(1);
-          
-          rowData.push(finalVal);
-          
-          // Simple approximation for General Index calculation
-          weightedSum += parseFloat(finalVal);
-          count++;
+           // Volatility for specific items
+           if (['Vegetables', 'Fruits', 'Egg'].includes(key)) {
+             change += volatility * 3;
+           }
+
+           // Apply update
+           currentCommods[key] += change;
+           
+           // Add noise
+           const noise = (Math.random() * 0.5) - 0.25;
+           const finalVal = Math.max(0, (currentCommods[key] + noise)).toFixed(1);
+           
+           rowData.push(finalVal);
+           
+           weightedSum += parseFloat(finalVal);
+           count++;
         }
-
-        // Calculate General Index (Simplified Average for display purposes)
-        // In reality, weights differ, but this tracks the visual trend correctly
+        
+        // Calculate General Index
         const generalIndex = (weightedSum / count).toFixed(1);
         rowData.push(generalIndex);
-
+        
         csv += '\n' + rowData.join(',');
       });
     });

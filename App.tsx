@@ -7,7 +7,7 @@ import { Card } from './components/ui/Card';
 import { TrendChart } from './components/charts/TrendChart';
 import { YearBarChart } from './components/charts/YearBarChart';
 import { CommodityChart } from './components/charts/CommodityChart';
-import { TrendingUp, Calendar, Filter, BarChart3, PieChart, Activity } from 'lucide-react';
+import { TrendingUp, Calendar, Filter, BarChart3, PieChart, Activity, ArrowUpRight } from 'lucide-react';
 
 export default function App() {
   const [data, setData] = useState<CPIDataPoint[]>([]);
@@ -59,53 +59,55 @@ export default function App() {
   );
 
   return (
-    <div className="h-screen w-screen bg-[#f8fafc] flex flex-col overflow-hidden font-sans text-slate-900">
-      {/* Fixed Header */}
-      <header className="flex-none h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 z-10">
-        <div className="flex items-center gap-3">
-           <div className="p-2 bg-indigo-600 rounded-lg shadow-sm">
-             <Activity className="text-white w-5 h-5" />
-           </div>
-           <div>
-             <h1 className="text-lg font-bold text-slate-900 tracking-tight leading-none">India CPI Analytics</h1>
-             <p className="text-xs text-slate-500 font-medium mt-0.5">Inflation Monitoring Dashboard</p>
-           </div>
-        </div>
-        
-        <div className="flex items-center gap-4">
-           {selectedYear && (
-             <button 
-               onClick={() => setSelectedYear(null)}
-               className="flex items-center gap-2 px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-md text-xs font-semibold border border-indigo-100 hover:bg-indigo-100 transition-colors"
-             >
-               <Filter size={14} />
-               Reset Year: {selectedYear}
-             </button>
-           )}
-
-           <div className="flex bg-slate-100 p-1 rounded-lg border border-slate-200">
-               {Object.values(SectorType).map((s) => (
-                <button
-                  key={s}
-                  onClick={() => setSector(s)}
-                  className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
-                    sector === s 
-                      ? 'bg-white text-indigo-700 shadow-sm' 
-                      : 'text-slate-500 hover:text-slate-700'
-                  }`}
-                >
-                  {s === SectorType.COMBINED ? "Combined" : s}
-                </button>
-              ))}
+    <div className="h-screen w-screen bg-[#f8fafc] font-sans text-slate-900 flex flex-col overflow-hidden">
+      {/* Header - Fixed Height */}
+      <header className="flex-none bg-white border-b border-slate-200 z-30 h-16">
+        <div className="h-full px-6 flex items-center justify-between max-w-[1920px] mx-auto w-full">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 bg-indigo-600 rounded-lg flex items-center justify-center shadow-sm">
+              <Activity className="text-white w-5 h-5" />
             </div>
+            <div>
+              <h1 className="text-lg font-bold tracking-tight text-slate-900 leading-tight">India CPI Analytics</h1>
+              <p className="text-[11px] text-slate-500 font-medium">Inflation Monitoring Dashboard</p>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-4">
+             {selectedYear && (
+               <button 
+                 onClick={() => setSelectedYear(null)}
+                 className="flex items-center gap-2 px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-md text-xs font-semibold border border-indigo-100 hover:bg-indigo-100 transition-colors"
+               >
+                 <Filter size={14} />
+                 Reset: {selectedYear}
+               </button>
+             )}
+
+             <div className="flex bg-slate-100 p-1 rounded-lg border border-slate-200">
+                 {Object.values(SectorType).map((s) => (
+                  <button
+                    key={s}
+                    onClick={() => setSector(s)}
+                    className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${
+                      sector === s 
+                        ? 'bg-white text-indigo-700 shadow-sm' 
+                        : 'text-slate-500 hover:text-slate-700'
+                    }`}
+                  >
+                    {s === SectorType.COMBINED ? "Combined" : s}
+                  </button>
+                ))}
+              </div>
+          </div>
         </div>
       </header>
 
-      {/* Main Content Grid - constrained max-width to restore preferred aesthetic */}
-      <main className="flex-1 p-6 min-h-0 grid grid-cols-12 grid-rows-[auto_1fr] gap-6 max-w-[1350px] w-full mx-auto">
+      {/* Main Content - Flex Grow to Fill Screen */}
+      <main className="flex-1 min-h-0 p-5 flex flex-col gap-5 max-w-[1920px] w-full mx-auto">
          
-         {/* KPI Row (Top) */}
-         <div className="col-span-12 grid grid-cols-4 gap-6 h-32 flex-none">
+         {/* KPI Cards - Fixed Height Row */}
+         <div className="flex-none grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
               <Card 
                 title="Average CPI" 
                 value={kpis.avgCPI} 
@@ -118,6 +120,7 @@ export default function App() {
                 subtext={selectedYear ? `Jan - Dec ${selectedYear}` : "2013 - 2023"} 
                 isPercentage 
                 trend={parseFloat(kpis.inflation) > 0 ? "up" : "down"}
+                icon={<div className="bg-emerald-50 text-emerald-600 p-1 rounded"><ArrowUpRight size={16}/></div>}
               />
               <Card 
                 title="Highest Category" 
@@ -129,18 +132,18 @@ export default function App() {
                 title="Time Period" 
                 value={selectedYear ? selectedYear.toString() : "2013-2023"} 
                 subtext={selectedYear ? "Filter Applied" : "Full Range"}
-                icon={<Calendar size={18} className="text-slate-400" />}
+                icon={<Calendar size={20} className="text-slate-400" />}
               />
          </div>
 
-         {/* Charts Area (Bottom) */}
-         <div className="col-span-12 grid grid-cols-12 gap-6 min-h-0">
+         {/* Charts Layout - Flex Grow */}
+         <div className="flex-1 min-h-0 grid grid-cols-12 gap-5">
             
-            {/* Left: Trend Chart (Larger) */}
-            <div className="col-span-8 bg-white rounded-xl border border-slate-200 shadow-sm p-5 flex flex-col">
-               <div className="flex justify-between items-center mb-2 flex-none">
-                 <h3 className="font-bold text-slate-800 flex items-center gap-2 text-sm uppercase tracking-wide">
-                   <TrendingUp size={16} className="text-indigo-500"/>
+            {/* Left Column: Trend Chart */}
+            <div className="col-span-12 lg:col-span-8 bg-white rounded-xl border border-slate-200 shadow-sm p-5 flex flex-col">
+               <div className="flex justify-between items-center mb-4 flex-none">
+                 <h3 className="font-bold text-slate-700 flex items-center gap-2 text-sm uppercase tracking-wider">
+                   <TrendingUp size={18} className="text-indigo-600"/>
                    Consumer Price Index Trend
                  </h3>
                </div>
@@ -149,13 +152,13 @@ export default function App() {
                </div>
             </div>
 
-            {/* Right: Year & Commodity (Stacked) */}
-            <div className="col-span-4 grid grid-rows-2 gap-6 min-h-0">
+            {/* Right Column: Stacked Charts */}
+            <div className="col-span-12 lg:col-span-4 flex flex-col gap-5 h-full">
                
                {/* Year Bar Chart */}
-               <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 flex flex-col min-h-0">
-                  <h3 className="font-bold text-slate-800 mb-2 flex items-center gap-2 text-sm uppercase tracking-wide flex-none">
-                    <BarChart3 size={16} className="text-indigo-500"/>
+               <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 flex flex-col flex-1 min-h-0">
+                  <h3 className="font-bold text-slate-700 mb-2 flex items-center gap-2 text-sm uppercase tracking-wider flex-none">
+                    <BarChart3 size={18} className="text-indigo-600"/>
                     Year-over Year CPI
                   </h3>
                   <div className="flex-1 min-h-0">
@@ -168,9 +171,9 @@ export default function App() {
                </div>
 
                {/* Commodity Chart */}
-               <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 flex flex-col min-h-0">
-                  <h3 className="font-bold text-slate-800 mb-2 flex items-center gap-2 text-sm uppercase tracking-wide flex-none">
-                    <PieChart size={16} className="text-indigo-500"/>
+               <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 flex flex-col flex-1 min-h-0">
+                  <h3 className="font-bold text-slate-700 mb-2 flex items-center gap-2 text-sm uppercase tracking-wider flex-none">
+                    <PieChart size={18} className="text-indigo-600"/>
                     Commodity-wise CPI
                   </h3>
                   <div className="flex-1 min-h-0">

@@ -22,34 +22,38 @@ export const Card: React.FC<CardProps> = ({
 }) => {
   return (
     <div className={`
-      relative overflow-hidden rounded-xl border p-5 flex flex-col justify-between h-full transition-all duration-200 hover:shadow-md
+      relative overflow-hidden rounded-lg border p-5 flex flex-col justify-between h-32 transition-all duration-200
       ${highlight 
-        ? 'bg-gradient-to-br from-indigo-600 to-indigo-700 border-indigo-600 text-white' 
-        : 'bg-white border-slate-200 text-slate-800 shadow-sm'
+        ? 'bg-indigo-600 border-indigo-600 text-white shadow-md shadow-indigo-200' 
+        : 'bg-white border-slate-200 text-slate-800 shadow-sm hover:shadow-md'
       }
     `}>
-      <div className="flex justify-between items-start">
-        <p className={`text-xs font-bold uppercase tracking-wider ${highlight ? 'text-indigo-200' : 'text-slate-500'}`}>
+      <div className="flex justify-between items-start mb-2">
+        <p className={`text-[11px] font-bold uppercase tracking-wider ${highlight ? 'text-indigo-200' : 'text-slate-500'}`}>
           {title}
         </p>
-        {icon && <div>{icon}</div>}
+        {icon}
         {!icon && trend && (
           <div className={`
-            flex items-center justify-center w-6 h-6 rounded-full 
-            ${highlight ? 'bg-white/20' : (trend === 'up' ? 'bg-green-50' : 'bg-red-50')}
+            flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full
+            ${highlight 
+               ? 'bg-white/20 text-white' 
+               : (trend === 'up' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600')
+            }
           `}>
-            {trend === 'up' && <ArrowUpRight size={14} className={highlight ? 'text-white' : 'text-green-600'} />}
-            {trend === 'down' && <ArrowDownRight size={14} className={highlight ? 'text-white' : 'text-red-600'} />}
-            {trend === 'neutral' && <Minus size={14} className={highlight ? 'text-white' : 'text-slate-400'} />}
+            {trend === 'up' && <ArrowUpRight size={12} />}
+            {trend === 'down' && <ArrowDownRight size={12} />}
+            {trend === 'neutral' && <Minus size={12} />}
+            <span>{trend === 'up' ? '+2.4%' : trend === 'down' ? '-1.2%' : '0%'}</span>
           </div>
         )}
       </div>
 
-      <div className="mt-auto">
-        <h2 className={`text-3xl font-bold tracking-tight ${highlight ? 'text-white' : 'text-slate-900'}`}>
+      <div>
+        <h2 className={`text-2xl font-bold tracking-tight ${highlight ? 'text-white' : 'text-slate-900'}`}>
           {value}
         </h2>
-        <p className={`text-xs mt-1 truncate ${highlight ? 'text-indigo-100' : 'text-slate-400'}`}>
+        <p className={`text-xs mt-1 truncate ${highlight ? 'text-indigo-200' : 'text-slate-400'}`}>
           {subtext}
         </p>
       </div>

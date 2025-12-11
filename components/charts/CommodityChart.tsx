@@ -26,7 +26,7 @@ export const CommodityChart: React.FC<CommodityChartProps> = ({ data }) => {
         layout="vertical"
         data={data} 
         margin={{ top: 0, right: 30, left: 10, bottom: 0 }} 
-        barSize={20}
+        barSize={16}
       >
         <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#f1f5f9" />
         <XAxis type="number" hide />

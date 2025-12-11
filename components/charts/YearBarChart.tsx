@@ -21,6 +21,7 @@ export const YearBarChart: React.FC<YearBarChartProps> = ({ data, onBarClick, se
           axisLine={false}
           tickLine={false}
           tickMargin={5}
+          interval={0}
         />
         <YAxis 
           hide={false}
